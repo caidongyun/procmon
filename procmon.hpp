@@ -1,9 +1,12 @@
+#include<list>
+#include<sys/time.h>
+
 class procmon
 {
 	public:
-	virtual void kick()=0;
-	
-	private:
-	struct timeval tv;
-	
-}
+	void m_kick();
+//	static char msg='A';	
+//	private:
+	std::list<int> m_timer_list;
+	std::list<int>::iterator i;
+};
