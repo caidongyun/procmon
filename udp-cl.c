@@ -1,4 +1,3 @@
-
 /* Sample UDP client */
 
 #include <sys/socket.h>
@@ -20,7 +19,7 @@ int register_client(int sockfd,struct sockaddr_in* servaddr)
 	init_packet.pid=getpid();
 	
 	if (sendto(sockfd,&init_packet,sizeof(PM),0
-					(struct sockaddr *)servaddr,sizeof(servaddr)) < 0)
+					(struct sockaddr *)servaddr,sizeof(struct sockaddr)) < 0)
 		perror("sendto in register client");
 		
 	n=recvfrom(sockfd,&recv_packet,sizeof(PM),0,NULL,NULL);
@@ -29,7 +28,7 @@ int register_client(int sockfd,struct sockaddr_in* servaddr)
 	recv_packet.info++;
 	
 	if (sendto(sockfd,&recv_packet,sizeof(PM),0
-					(struct sockaddr *)servaddr,sizeof(servaddr)) < 0)
+					(struct sockaddr *)servaddr,sizeof(struct sockaddr)) < 0)
 		perror("sendto in register client");
 	memset(recv_packet,0,sizeof(PM));
 	n=recvfrom(sockfd,&recv_packet,sizeof(PM),0,NULL,NULL);
