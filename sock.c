@@ -53,22 +53,33 @@ int wait_on_socket(int sockfd)
 
 }
 
-int proc_ack(int sockfd)
-   
-   int sockfd,n;
-   struct sockaddr_in servaddr,cliaddr;
-   socklen_t len;
-   char mesg[1000];
-   fd_set rfds;
-   struct timeval tv;
-   int retval;
+int get_packet(int sockfd)
+{
+	int n;
+	PM m;
+	struct sockaddr_in cliaddr;
+	socklen_t len;
+	
+	len = sizeof(cliaddr);
+	
+	n = recvfrom(sockfd,&m,sizeof(m),0,(struct sockaddr *)&cliaddr,&len);
+	if(n < sizeof(m))
+		printf("Error recving packet\n");
+	process_msg(&m);
+	
+}
 
-   for (;;)
-   {
-	  len = sizeof(cliaddr);
-	  n = recvfrom(sockfd,&m,sizeof(m),0,(struct sockaddr *)&cliaddr,&len);
-	  printf("Client PID=%d,Client Hash=%d\n",m.p,m.hash);
-   }
+int proc_ack(int sockfd)
+{   
+	int n;
+	struct sockaddr_in cliaddr;
+	socklen_t len;
+	
+	
+	len = sizeof(cliaddr);
+	n = recvfrom(sockfd,&m,sizeof(m),0,(struct sockaddr *)&cliaddr,&len);
+	printf("Client PID=%d,Client Hash=%d\n",m.p,m.hash);
+	
 }
 
 int tcp_server()

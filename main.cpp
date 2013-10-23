@@ -17,8 +17,10 @@ int main()
 	sockfd= sock_server(UDP_SERVER);
 
 	for(;;)
-		wait_on_socket(sockfd);
-		proc_ack(sockfd);
-
+	{
+		if(!(wait_on_socket(sockfd)))
+			check_proc();
+		get_packet(sockfd);
+	}
 	return 0;
 }
