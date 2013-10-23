@@ -27,6 +27,32 @@ int udp_server()
    return sockfd;
 }
 
+int wait_on_socket(int sockfd)
+{
+	int sockfd,n;
+   struct sockaddr_in servaddr,cliaddr;
+   socklen_t len;
+   char mesg[1000];
+   fd_set rfds;
+   struct timeval tv;
+   int retval;
+   
+   FD_ZERO(&rfds);
+   FD_SET(sockfd,&rfds);
+
+   tv.tv_sec =10;
+   tv.tv_usec = 0;
+
+   retval = select(sockfd+1,&rfds,NULL,NULL,&tv);
+   if(retval)
+		 return RETURN_OK;
+   if(!retval)
+		 return E_SELECT_TIMEOUT;
+   if(retval == -1)
+		 return E_SELECT_ERROR;
+
+}
+
 int proc_ack(int sockfd)
    
    int sockfd,n;
@@ -39,25 +65,9 @@ int proc_ack(int sockfd)
 
    for (;;)
    {
-		   FD_ZERO(&rfds);
-		   FD_SET(sockfd,&rfds);
-
-		   tv.tv_sec =10;
-		   tv.tv_usec = 0;
-
-		   retval = select(sockfd+1,&rfds,NULL,NULL,&tv);
-		   if(retval)
-		   {
-			  len = sizeof(cliaddr);
-			  n = recvfrom(sockfd,&m,sizeof(m),0,(struct sockaddr *)&cliaddr,&len);
-			  printf("Client PID=%d,Client Hash=%d\n",m.p,m.hash);
-		   }
-		   if(!retval)
-		   {
-				/* Timeout should check the time value and kill the process */
-				printf("Killed the Non responding Process =%d\n",m.pid);
-				kill(SIGKILL,m.pid);
-		   }
+	  len = sizeof(cliaddr);
+	  n = recvfrom(sockfd,&m,sizeof(m),0,(struct sockaddr *)&cliaddr,&len);
+	  printf("Client PID=%d,Client Hash=%d\n",m.p,m.hash);
    }
 }
 
