@@ -1,8 +1,9 @@
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 
 #define L_SOCK_NAME "/tmp/unixsrv"
@@ -33,14 +34,16 @@ credentials.gid;
  *         We can take this opportunity to check to see if this is a legit account.
  *          */
 #endif
-int unix_server(struct sockaddr_un* saddr)
+
+
+int unix_server()
 {
 	int socket_fd;
 	struct sockaddr_un server_address; 
 	struct sockaddr_un client_address; 
-	int bytes_received, bytes_sent, address_length;
+	unsigned int bytes_received, bytes_sent, address_length;
 	int integer_buffer;
-	socklen_t address_length = sizeof(struct sockaddr_un);
+	address_length = sizeof(struct sockaddr_un);
 
 	if((socket_fd = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0)
 	{
@@ -60,6 +63,16 @@ int unix_server(struct sockaddr_un* saddr)
 		perror("server: bind");
 		return 1;
 	}
+}
+
+int process_packet(int socket_fd)
+{
+
+	struct sockaddr_un server_address; 
+	struct sockaddr_un client_address; 
+	unsigned int bytes_received, bytes_sent, address_length;
+	int integer_buffer;
+	address_length = sizeof(struct sockaddr_un);
 
 	while(1)
 	{
@@ -69,8 +82,7 @@ int unix_server(struct sockaddr_un* saddr)
 		take care to hold and pass the correct value back to sendto on reply.  */
 
 		bytes_received = recvfrom(socket_fd, (char *) &integer_buffer, sizeof(int), 0, 
-							(struct sockaddr *) &(client_address),
-							&address_length);
+							(struct sockaddr *) &(client_address),(socklen_t)address_length);
 
 		if(bytes_received != sizeof(int))
 		{
@@ -79,14 +91,9 @@ int unix_server(struct sockaddr_un* saddr)
 		integer_buffer += 5;
 
 		bytes_sent = sendto(socket_fd, (char *) &integer_buffer, sizeof(int), 0,
-					   (struct sockaddr *) &(client_address), 
-						&address_length);
+					   (struct sockaddr *) &(client_address), (socklen_t)address_length);
 		}
 	}
-
-	unlink("./UDSDGSRV");
-	close(socket_fd);
 	return 0;
 }
 
-#endif
